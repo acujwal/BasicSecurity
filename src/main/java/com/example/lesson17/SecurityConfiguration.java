@@ -16,10 +16,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .anyRequest()
-                .authenticated()
+                .antMatchers("/")
+                .access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+                .antMatchers("/admin").access("hasAuthority('ROLE_ADMIN')")
+
+                .anyRequest().authenticated()
                 .and()
-                .formLogin() //*** creating a login form ***//
+
+                .formLogin().loginPage("/login").permitAll()// added by lesson 18 // //*** creating a login form ***//
+
                 .and()
                 .httpBasic(); //*** user can avoid a login promt by putting login details in the request ***//
     }
@@ -28,7 +33,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) // ** override the defult configure method, configure user who can access the application**//
             throws Exception {
         auth.inMemoryAuthentication().
-                withUser("user").password("password").roles("USER");
+                withUser("admin").password("admin").roles("ADMIN")
+                .and()
+                .withUser("user").password("password").roles("USER");
 
     }
 
